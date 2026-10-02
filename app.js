@@ -50,7 +50,7 @@ const dishes=[
   [
     "salami",
     "Пицца",
-    "Салями, страчателла с ароматом трюфеля",
+    "Салями, страчателла с трюфелем",
     730
   ],
   [
@@ -62,7 +62,7 @@ const dishes=[
   [
     "pear",
     "Пицца",
-    "Груша, горгонзола и орехи",
+    "Груша, горгонзола, орехи",
     590
   ],
   [
@@ -74,7 +74,7 @@ const dishes=[
   [
     "shrimp-pizza",
     "Пицца",
-    "С креветками, цукини и рикоттой",
+    "С креветками, цукини, рикотта",
     980
   ],
   [
@@ -104,7 +104,7 @@ const dishes=[
   [
     "nutella",
     "Пицца",
-    "Nutella и банан",
+    "Nutella & banana",
     510
   ],
   [
@@ -128,7 +128,7 @@ const dishes=[
   [
     "tomato-pasta",
     "Паста",
-    "Тальятелле с томатами и страчателлой",
+    "Тальятелле с томатами и сыром страчателла",
     590
   ],
   [
@@ -201,7 +201,7 @@ const dishes=[
     "tuna-panini",
     "Панини",
     "Тунец, моцарелла",
-    510
+    420
   ],
   [
     "roastbeef-panini",
@@ -220,12 +220,6 @@ const dishes=[
     "Панини",
     "Куриная грудка, моцарелла, томаты и песто",
     490
-  ],
-  [
-    "stracciatella-panini",
-    "Панини",
-    "Страчателла, томаты, рукола",
-    380
   ],
   [
     "chicken-soup",
@@ -287,7 +281,7 @@ const $=s=>document.querySelector(s),money=n=>n.toLocaleString('ru-RU')+' ₽',e
 function totals(){return Object.entries(basket).reduce((a,[id,q])=>({count:a.count+q,sum:a.sum+dishes.find(d=>d.id===id).price*q}),{count:0,sum:0})}
 function qty(id){return `<div class="qty"><button data-change="${id}" data-delta="-1" aria-label="Уменьшить количество: ${esc(dishes.find(d=>d.id===id).name)}">−</button><span>${basket[id]}</span><button data-change="${id}" data-delta="1" aria-label="Увеличить количество: ${esc(dishes.find(d=>d.id===id).name)}">+</button></div>`}
 function change(id,delta){if(!dishes.some(d=>d.id===id)||![-1,1].includes(delta))throw Error('Некорректная позиция');basket[id]=Math.max(0,Math.min(20,(basket[id]||0)+delta));if(!basket[id])delete basket[id];render();if($('#cart').open)renderCart();return totals()}
-function render(){ $('#categories').innerHTML=categories.map(c=>`<button data-category="${c}" class="${category===c?'active':''}" aria-pressed="${category===c}">${c}</button>`).join('');$('#category-title').textContent=category;$('#category-note').textContent=category==='Пицца'?'30 см':'';$('#menu').innerHTML=dishes.filter(d=>d.category===category).map((d,i)=>`<article class="dish"><h3>${d.name}</h3><div class="dish-bottom"><span class="price">${money(d.price)}</span>${basket[d.id]?qty(d.id):`<button class="add" data-change="${d.id}" data-delta="1" aria-label="Добавить: ${esc(d.name)}">Добавить</button>`}</div></article>`).join('');const t=totals();$('#cart-button').hidden=!t.count||staff;$('#cart-count').textContent=t.count;$('#cart-total').textContent=money(t.sum);renderOrders()}
+function render(){ $('#categories').innerHTML=categories.map(c=>`<button data-category="${c}" class="${category===c?'active':''}" aria-pressed="${category===c}">${c}</button>`).join('');$('#category-title').textContent=category;$('#category-note').textContent='';$('#menu').innerHTML=dishes.filter(d=>d.category===category).map((d,i)=>`<article class="dish"><h3>${d.name}</h3><div class="dish-bottom"><span class="price">${money(d.price)}</span>${basket[d.id]?qty(d.id):`<button class="add" data-change="${d.id}" data-delta="1" aria-label="Добавить: ${esc(d.name)}">Добавить</button>`}</div></article>`).join('');const t=totals();$('#cart-button').hidden=!t.count||staff;$('#cart-count').textContent=t.count;$('#cart-total').textContent=money(t.sum);renderOrders()}
 function renderCart(){const t=totals();$('#cart-items').innerHTML=t.count?Object.entries(basket).map(([id,q])=>{const d=dishes.find(d=>d.id===id);return `<div class="cart-row"><div><strong>${d.name}</strong><small>${money(d.price*q)} · ${q} шт.</small></div>${qty(id)}</div>`}).join(''):'<p class="empty">Корзина пуста. Добавьте блюда из меню.</p>';$('#total').textContent=money(t.sum);$('#checkout').hidden=!t.count}
 const status={pending:'Ожидает подтверждения',accepted:'Готовится',ready:'Готов к выдаче',done:'Выдан',rejected:'Отклонён'};
 function orderHtml(o,isStaff){return `<article class="order"><div class="order-head"><h3>Тестовый заказ №${o.id}</h3><span class="status">${status[o.status]}</span></div><p>${esc(o.name)} · ${esc(o.phone)}<br>Самовывоз: ${esc(o.when)}${o.minutes?`<br>Время приготовления при подтверждении: ${o.minutes} мин.`:''}</p><ul>${o.items.map(d=>`<li>${esc(d.name)} × ${d.qty}</li>`).join('')}</ul>${o.comment?`<p>Комментарий: ${esc(o.comment)}</p>`:''}<strong>${money(o.sum)} · оплата при получении</strong>${isStaff?`<div class="order-actions">${o.status==='pending'?`<label>Готовность через <select aria-label="Время приготовления заказа ${o.id}" id="minutes-${o.id}"><option>15</option><option selected>25</option><option>40</option><option>60</option></select></label><button class="primary" data-order="${o.id}" data-status="accepted">Принять</button><button class="outline" data-order="${o.id}" data-status="rejected">Отклонить</button>`:o.status==='accepted'?`<button class="primary" data-order="${o.id}" data-status="ready">Готов к выдаче</button>`:o.status==='ready'?`<button class="primary" data-order="${o.id}" data-status="done">Выдан</button>`:''}</div>`:''}</article>`}
