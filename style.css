@@ -7,3 +7,7 @@
 /* Keep the whole Margherita visible with small margins in its wooden setting. */
 .is-board .photo-button img,.board-product .product-photo img{object-position:center;object-fit:cover;transform:translateY(-5%) scale(1.4)}
 .is-board .photo-button:hover img{transform:translateY(-5%) scale(1.4)}
+
+/* Match the full-pizza framing of the approved Margherita. */
+.is-framed .photo-button img,.framed-product .product-photo img{object-position:center;transform:scale(1.1)}
+.is-framed .photo-button:hover img{transform:scale(1.1)}
